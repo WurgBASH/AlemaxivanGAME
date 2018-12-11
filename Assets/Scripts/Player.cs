@@ -60,8 +60,7 @@ public class Player : Unit {
         rigidbody = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
 		sprite =GetComponentInChildren<SpriteRenderer>();
-
-		bullet = Resources.Load<Bullet>("Bullet");
+        bullet = Resources.Load<Bullet>("Bullet");
 
     }
 
@@ -77,13 +76,17 @@ public class Player : Unit {
 	private void Update()
 	{
 		if(isGrounded) State = CharState.Idle;
-
-		if(Input.GetButton("Fire1") && readyShoot) StartCoroutine(Shoot());
+        if(!readyShoot) State = CharState.FireStay;
+        if (Input.GetButton("Fire1") && readyShoot)
+        {
+            State = CharState.Fire;
+            StartCoroutine(Shoot());
+        }
 		if(Input.GetButton("Horizontal")) Run();
 		if(isGrounded && Input.GetButton("Jump")) Jump();
 	}
 
-	private void Run()
+    private void Run()
 	{
 		Vector3 direction = transform.right* Input.GetAxis("Horizontal");
 
@@ -98,12 +101,13 @@ public class Player : Unit {
 
     IEnumerator Shoot()
 	{
+        
         readyShoot = false;
         Vector3 position = transform.position; position.y+=0.8F; 
 		if(sprite.flipX)  position.x -=1.8F; else position.x +=1.8F;
         
         Bullet newBullet = Instantiate(bullet,position,bullet.transform.rotation) as Bullet;
-        
+        State = CharState.FireStay;
         newBullet.Direction = newBullet.transform.right *(sprite.flipX ? -1.0F:1.0F);
         yield return new WaitForSeconds(1);
         readyShoot = true;
@@ -121,7 +125,7 @@ public class Player : Unit {
         }
         Debug.Log(lives);
     }
-    IEnumerator Die()
+    protected override IEnumerator Die()
     {
 
         //gameOverPanel.SetActive(true);
@@ -176,5 +180,7 @@ public enum CharState
 {
 	Idle,
 	Run,
-    Jump
+    Jump,
+    Fire,
+    FireStay
 }

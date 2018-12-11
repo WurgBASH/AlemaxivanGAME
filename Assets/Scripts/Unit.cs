@@ -6,8 +6,9 @@ public class Unit : MonoBehaviour {
     {
         Die();
     }
-	protected virtual void Die()
+	protected virtual IEnumerator Die()
 	{
         Destroy(gameObject, .1f);
+        yield return new WaitForSeconds(2);
     }
 }
