@@ -51,11 +51,11 @@ public class Player : Unit {
 	new private Rigidbody2D rigidbody;
 	private Animator animator;
 	private SpriteRenderer sprite;
-    //public GameObject gameOverPanel;
-    //public Text gameOverText;
+    public GameObject gameOverPanel;
+    public Text gameOverText;
     private void Awake()
 	{
-        //gameOverPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
         livesBar = FindObjectOfType<LivesBar>();
         rigidbody = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
@@ -128,23 +128,23 @@ public class Player : Unit {
     protected override IEnumerator Die()
     {
 
-        //gameOverPanel.SetActive(true);
-        //gameOverText.text = "GAME OVER!";
+        gameOverPanel.SetActive(true);
+        gameOverText.text = "GAME OVER!";
         yield return new WaitForSeconds(2);
         Lives = 5;
         livesBar.Refresh();
-        //gameOverPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
         Scene scene = SceneManager.GetActiveScene(); SceneManager.LoadScene(scene.name);
     }
     IEnumerator Win()
     {
 
-        //gameOverPanel.SetActive(true);
-       // gameOverText.text = "YOU WIN!";
+        gameOverPanel.SetActive(true);
+        gameOverText.text = "YOU WIN!";
         yield return new WaitForSeconds(2);
         Lives = 5;
         livesBar.Refresh();
-        //gameOverPanel.SetActive(false);
+         gameOverPanel.SetActive(false);
         Scene scene = SceneManager.GetActiveScene(); SceneManager.LoadScene(scene.name);
     }
     private void CheckGround()
