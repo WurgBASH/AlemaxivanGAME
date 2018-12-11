@@ -7,7 +7,7 @@ public class Obstacle : MonoBehaviour
     {
         Unit unit = collider.GetComponent<Unit>();
         if (unit && unit is Player)
-        {
+        {           
             unit.ReceiveDamage();
         }
     }

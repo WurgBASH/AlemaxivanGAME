@@ -75,7 +75,7 @@ public class Player : Unit {
 
 	private void Update()
 	{
-		if(isGrounded) State = CharState.Idle;
+		if(isGrounded && readyShoot) State = CharState.Idle;
         if(!readyShoot) State = CharState.FireStay;
         if (Input.GetButton("Fire1") && readyShoot)
         {
@@ -116,8 +116,8 @@ public class Player : Unit {
     public override void ReceiveDamage()
     {
         Lives--;
-        rigidbody.velocity = Vector3.zero;
-        rigidbody.AddForce(transform.up * 8.0F, ForceMode2D.Impulse);
+        /*rigidbody.velocity = Vector3.zero;
+        rigidbody.AddForce(transform.up * 8.0F, ForceMode2D.Impulse);*/
         if (Lives == 0)
         {
             StartCoroutine(Die());
