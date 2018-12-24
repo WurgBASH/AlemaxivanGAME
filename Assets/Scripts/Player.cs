@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class Player : Unit {
 	[SerializeField]
@@ -33,11 +34,11 @@ public class Player : Unit {
     [SerializeField]
 	private float speed = 3.0F;
 	[SerializeField]
-	private float jumpForce = 7.0F;
+	private float jumpForce = 25.0F;
     public GameObject respawn;
 
     private bool isGrounded =false;
-    public bool readyShoot = true;
+    private bool readyShoot = true;
 
 
     private Bullet bullet;
@@ -53,6 +54,13 @@ public class Player : Unit {
 	private SpriteRenderer sprite;
     public GameObject gameOverPanel;
     public Text gameOverText;
+
+    private int FuncState =0;
+    private int FucnArg =-1;
+    private int FucnArg1 = 0;
+    int[] FunctionsArgs;
+    int[] FunctionsStates;
+    int Stateindex = 0;
     private void Awake()
 	{
         gameOverPanel.SetActive(false);
@@ -71,29 +79,113 @@ public class Player : Unit {
         {
             StartCoroutine(Win());
         }
-	}
+
+        if (FucnArg>0)
+            FucnArg--;
+        if (FucnArg == 0)
+        {
+            FucnArg1--;
+            if (FucnArg1 <= 0)
+            {
+                FuncState = 0;
+                State = CharState.Idle;
+            }
+            else
+            {
+                FucnArg = 17;
+            }
+            
+        }
+        
+            
+       // if (isGrounded && Input.GetButton("Jump")) Jump();
+        
+    }
 
 	private void Update()
 	{
-		if(isGrounded && readyShoot) State = CharState.Idle;
-        if(!readyShoot) State = CharState.FireStay;
+        if (isGrounded && readyShoot) State = CharState.Idle;
+        if (!readyShoot) State = CharState.FireStay;
+        if (FuncState == 1)
+        {
+            RunBB();
+        }
+        
+        
+
+
+
+        /*if(Input.GetButton("Horizontal")) Run();
         if (Input.GetButton("Fire1") && readyShoot)
         {
             State = CharState.Fire;
             StartCoroutine(Shoot());
-        }
-		if(Input.GetButton("Horizontal")) Run();
-		if(isGrounded && Input.GetButton("Jump")) Jump();
-	}
+        }*/
 
-    private void Run()
-	{
-		Vector3 direction = transform.right* Input.GetAxis("Horizontal");
+    }
+    /* private void Run()
+     {
+         Vector3 direction = transform.right* Input.GetAxis("Horizontal");
+         transform.position = Vector3.MoveTowards(transform.position,transform.position+direction,speed* Time.deltaTime);
+         sprite.flipX = direction.x < 0.0F;
+         if(isGrounded) State = CharState.Run;
+     }*/
+    public void CreateFuncArray(int size)
+    {
+        FunctionsArgs = new int[size];
+        Stateindex = 0;
+        FunctionsStates = new int[size];      
+    }
+    private void RunBB()
+    {
+        Vector3 direction = transform.right;
+        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
+        if (isGrounded) State = CharState.Run;
+    }
+    public void RBut(int arg)
+    {
+        FunctionsArgs[Stateindex] = arg;
+        FunctionsStates[Stateindex++] = 1;
+        //FuncState = 1;
+        //FucnArg = 17;
+        //FucnArg1 = arg;
 
-		transform.position = Vector3.MoveTowards(transform.position,transform.position+direction,speed* Time.deltaTime);
-		sprite.flipX = direction.x < 0.0F;
-		if(isGrounded) State = CharState.Run;
-	}
+        /*
+        State = CharState.Run;
+
+        Vector3 direction = transform.right;
+        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
+
+        /*Vector3 direction = new Vector3(10.0F,0,0);
+        Debug.Log(transform.right);
+        for (int i = 0; i < arg; i++)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
+            //transform.position += Vector3.right;
+        }*/
+
+
+        //State = CharState.Idle;
+    }
+
+    public void JBut(int arg)
+    {
+        FunctionsArgs[Stateindex] = arg;
+        FunctionsStates[Stateindex++] = 2;
+        /* if (arg > 5) arg = 5;
+        rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+
+        rigidbody.AddForce(transform.right * 1.3F*arg, ForceMode2D.Impulse);*/
+
+    }
+    public void SBut(int arg)
+    {
+        FunctionsArgs[Stateindex] = arg;
+        FunctionsStates[Stateindex++] = 3;
+        /*
+        State = CharState.Fire;
+        StartCoroutine(Shoot());*/
+    }
     private void Jump()
 	{
 		rigidbody.AddForce(transform.up*jumpForce, ForceMode2D.Impulse);
@@ -125,6 +217,36 @@ public class Player : Unit {
         }
         Debug.Log(lives);
     }
+
+    public IEnumerator Starting()
+    {
+        for(int i = 0; i < FunctionsStates.Length; i++)
+        {
+            switch (FunctionsStates[i])
+            {
+                case 1:
+                    FuncState = 1;
+                    FucnArg = 17;
+                    FucnArg1 = FunctionsArgs[i];
+                    yield return new WaitForSeconds(2);
+                    break;
+                case 2:
+                    if (FunctionsArgs[i] > 5) FunctionsArgs[i] = 5;
+                    rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
+
+                    rigidbody.AddForce(transform.right * 1.3F * FunctionsArgs[i], ForceMode2D.Impulse);
+                    yield return new WaitForSeconds(2);
+                    break;
+                case 3:
+                    State = CharState.Fire;
+                    StartCoroutine(Shoot());
+                    yield return new WaitForSeconds(2);
+                    break;
+
+            }
+        }
+    }
+
     protected override IEnumerator Die()
     {
 
