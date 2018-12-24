@@ -14,6 +14,7 @@ public class DragAndDrop : MonoBehaviour
     public GameObject JumpButtonPrefab;
     public GameObject ShootButtonPrefab;
     bool drag = false;
+    int activeDrag;
     bool addingBut = false;
     int  start = 0;
     Dictionary<string, int> funcAndArg = new Dictionary<string, int>();
@@ -44,39 +45,65 @@ public class DragAndDrop : MonoBehaviour
     }
     void FixedUpdate()
     {
-        
-        if (Input.GetMouseButtonDown(1))
+        if (drag)
+        {
+            if (but[activeDrag].position.y+15 > Input.mousePosition.y)
+            {
+                if (Input.mousePosition.y <= (but[activeDrag + 1].position.y + 15) && Input.mousePosition.y >= (but[activeDrag + 1].position.y - 15))
+                {
+                    if (activeDrag < butCol)
+                    {
+                        var temp = but[activeDrag].position;
+                        but[activeDrag].position = but[activeDrag + 1].position;
+                        but[activeDrag].SetSiblingIndex(activeDrag + 1);
+                        but[activeDrag + 1].position = temp;
+                        but[activeDrag+1].SetSiblingIndex(activeDrag);
+                        CreateBut();
+                        drag = false;
+                    }
+                    else
+                    {
+                        drag = false;
+                    }
+                }
+
+            }
+            else
+            {
+                if (activeDrag > 0)
+                {
+                    var temp = but[activeDrag].position;
+                    but[activeDrag].position = but[activeDrag - 1].position;
+                    but[activeDrag].SetSiblingIndex(activeDrag - 1);
+                    but[activeDrag - 1].position = temp;
+                    but[activeDrag-1].SetSiblingIndex(activeDrag);
+                    CreateBut();
+                    drag = false;
+                }
+                else
+                {
+                    drag = false;
+                }
+            }
+        }
+        if (Input.GetMouseButtonDown(1) && !drag)
         {
             for (int i = 0; i < but.Length; i++)
             {
                 if (Input.GetMouseButtonDown(1) && Math.Abs(Input.mousePosition.x) >= Math.Abs(but[i].position.x - 80.0F) && Math.Abs(Input.mousePosition.x) <= Math.Abs(but[i].position.x) + 80.0F &&
                     Math.Abs(Input.mousePosition.y) >= Math.Abs(but[i].position.y - 15.0F) && Math.Abs(Input.mousePosition.y) <= Math.Abs(but[i].position.y) + 15.0F)
                     {
-                 
-                        Vector2 vec = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                        var temp = but[i].position;
-                        if (i < (butCol-1))
-                        {
-                            but[i].position = but[i + 1].position;
-                            but[i].SetSiblingIndex(i + 1);
-                            but[i + 1].position = temp;
-                            but[i+1].SetSiblingIndex(i);
-                            CreateBut();
-                        }
-                        else
-                        {                        
-                            but[i].position = but[0].position;
-                            but[i].SetSiblingIndex(0);
-                            but[0].position = temp;
-                            but[0].SetSiblingIndex(i);
-                            CreateBut();
-                        }
-                        break;
+                        drag = true;
+                        activeDrag = i;
                 }
             }
             
         }
 
+    }
+     void Update()
+    {
+        
     }
     public void GetFuncs()
     {
@@ -92,9 +119,6 @@ public class DragAndDrop : MonoBehaviour
             }
         }
         StartCoroutine(character.Starting());
-
-
-
     }
     public void GetArg(InputField inp)
     {
