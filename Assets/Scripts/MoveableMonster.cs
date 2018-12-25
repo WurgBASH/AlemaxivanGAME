@@ -8,7 +8,6 @@ public class MoveableMonster : Monster
     private int mLives = 1;
     [SerializeField]
     private float speed = 2.0F;
-    private Point point;
     private Vector3 direction;
     
 
@@ -17,7 +16,6 @@ public class MoveableMonster : Monster
     protected override void Awake()
     {
         sprite = GetComponentInChildren<SpriteRenderer>();
-        point = Resources.Load<Point>("Point");
     }
 
     protected override void Start()
@@ -39,7 +37,6 @@ public class MoveableMonster : Monster
             Destroy(gameObject, .1f);
             Vector3 position = transform.position;
             position.y += 0.5F;
-            Point newPoint = Instantiate(point, position, point.transform.rotation) as Point;
         }
     }
     protected override void OnTriggerEnter2D(Collider2D collider)

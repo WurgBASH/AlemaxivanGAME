@@ -7,6 +7,6 @@ public class ButtonManager : MonoBehaviour {
 
 	public void LoadLevel(int numLvl)
     {
-        SceneManager.LoadScene("level"+numLvl);
+        SceneManager.LoadScene(numLvl.ToString());
     }
 }

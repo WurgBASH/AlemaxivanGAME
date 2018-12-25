@@ -2,7 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System;
 
 public class Player : Unit {
 	[SerializeField]
@@ -18,19 +17,6 @@ public class Player : Unit {
         }
     }
     private LivesBar livesBar;
-
-    [SerializeField]
-    private int points = 0;
-    public int Points
-    {
-        get { return points; }
-        set
-        {
-            points = value;
-        }
-    }
-    private PointsBar pointsBar;
-
     [SerializeField]
 	private float speed = 3.0F;
 	[SerializeField]
@@ -54,6 +40,8 @@ public class Player : Unit {
 	private SpriteRenderer sprite;
     public GameObject gameOverPanel;
     public Text gameOverText;
+    bool PlayerDie;
+    bool PlayerWin;
 
     private int FuncState =0;
     private int FucnArg =-1;
@@ -75,11 +63,6 @@ public class Player : Unit {
 	private void FixedUpdate()
 	{
 		CheckGround();
-        if(points == 425)
-        {
-            StartCoroutine(Win());
-        }
-
         if (FucnArg>0)
             FucnArg--;
         if (FucnArg == 0)
@@ -97,9 +80,6 @@ public class Player : Unit {
             
         }
         
-            
-       // if (isGrounded && Input.GetButton("Jump")) Jump();
-        
     }
 
 	private void Update()
@@ -110,26 +90,7 @@ public class Player : Unit {
         {
             RunBB();
         }
-        
-        
-
-
-
-        /*if(Input.GetButton("Horizontal")) Run();
-        if (Input.GetButton("Fire1") && readyShoot)
-        {
-            State = CharState.Fire;
-            StartCoroutine(Shoot());
-        }*/
-
     }
-    /* private void Run()
-     {
-         Vector3 direction = transform.right* Input.GetAxis("Horizontal");
-         transform.position = Vector3.MoveTowards(transform.position,transform.position+direction,speed* Time.deltaTime);
-         sprite.flipX = direction.x < 0.0F;
-         if(isGrounded) State = CharState.Run;
-     }*/
     public void CreateFuncArray(int size)
     {
         FunctionsArgs = new int[size];
@@ -146,45 +107,17 @@ public class Player : Unit {
     {
         FunctionsArgs[Stateindex] = arg;
         FunctionsStates[Stateindex++] = 1;
-        //FuncState = 1;
-        //FucnArg = 17;
-        //FucnArg1 = arg;
-
-        /*
-        State = CharState.Run;
-
-        Vector3 direction = transform.right;
-        transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
-
-        /*Vector3 direction = new Vector3(10.0F,0,0);
-        Debug.Log(transform.right);
-        for (int i = 0; i < arg; i++)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
-            //transform.position += Vector3.right;
-        }*/
-
-
-        //State = CharState.Idle;
     }
 
     public void JBut(int arg)
     {
         FunctionsArgs[Stateindex] = arg;
         FunctionsStates[Stateindex++] = 2;
-        /* if (arg > 5) arg = 5;
-        rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
-
-        rigidbody.AddForce(transform.right * 1.3F*arg, ForceMode2D.Impulse);*/
-
     }
     public void SBut(int arg)
     {
         FunctionsArgs[Stateindex] = arg;
         FunctionsStates[Stateindex++] = 3;
-        /*
-        State = CharState.Fire;
-        StartCoroutine(Shoot());*/
     }
     private void Jump()
 	{
@@ -208,14 +141,11 @@ public class Player : Unit {
     public override void ReceiveDamage()
     {
         Lives--;
-        /*rigidbody.velocity = Vector3.zero;
-        rigidbody.AddForce(transform.up * 8.0F, ForceMode2D.Impulse);*/
         if (Lives == 0)
         {
-            StartCoroutine(Die());
+            Lose();
 
         }
-        Debug.Log(lives);
     }
 
     public IEnumerator Starting()
@@ -227,15 +157,15 @@ public class Player : Unit {
                 case 1:
                     FuncState = 1;
                     FucnArg = 17;
-                    FucnArg1 = FunctionsArgs[i];
-                    yield return new WaitForSeconds(2);
+                    FucnArg1 = FunctionsArgs[i];               
+                    yield return new WaitForSeconds(1+FunctionsArgs[i] / 3);
                     break;
                 case 2:
                     if (FunctionsArgs[i] > 5) FunctionsArgs[i] = 5;
                     rigidbody.AddForce(transform.up * jumpForce, ForceMode2D.Impulse);
 
                     rigidbody.AddForce(transform.right * 1.3F * FunctionsArgs[i], ForceMode2D.Impulse);
-                    yield return new WaitForSeconds(2);
+                    yield return new WaitForSeconds(3);
                     break;
                 case 3:
                     State = CharState.Fire;
@@ -244,48 +174,58 @@ public class Player : Unit {
                     break;
 
             }
+            if (PlayerDie)
+            {
+                break;
+            }
         }
     }
 
-    protected override IEnumerator Die()
+    public void Lose()
     {
-
-        gameOverPanel.SetActive(true);
-        gameOverText.text = "GAME OVER!";
-        yield return new WaitForSeconds(2);
-        Lives = 5;
-        livesBar.Refresh();
-        gameOverPanel.SetActive(false);
-        Scene scene = SceneManager.GetActiveScene(); SceneManager.LoadScene(scene.name);
+        if (!PlayerWin)
+        {
+            PlayerDie = true;
+            gameOverPanel.SetActive(true);
+            gameOverText.text = "YOU LOSE!";
+            gameOverPanel.GetComponentInChildren<Button>();
+            var next = GameObject.Find("NextBut");
+            next.GetComponent<Button>().interactable = false;
+            Lives = 5;
+            livesBar.Refresh();
+        }
+        
     }
-    IEnumerator Win()
+    public void Win()
     {
-
+        PlayerWin = true;
         gameOverPanel.SetActive(true);
         gameOverText.text = "YOU WIN!";
-        yield return new WaitForSeconds(2);
+        var next = GameObject.Find("NextBut");
+        next.GetComponent<Button>().interactable = true;
         Lives = 5;
         livesBar.Refresh();
-         gameOverPanel.SetActive(false);
-        Scene scene = SceneManager.GetActiveScene(); SceneManager.LoadScene(scene.name);
     }
     private void CheckGround()
 	{
 		Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 0.3F);
-
 		isGrounded = colliders.Length>1;
-
 		if(!isGrounded) State = CharState.Jump;
 	}
-
-    /*private void OnCollisionEnter2D(Collision2D collision)
+    public void AgainBut()
     {
-        Unit unit = collision.gameObject.GetComponent<Unit>();
-        if (unit) ReceiveDamage();
-
-        Bullet bullet = collision.gameObject.GetComponent<Bullet>();
-        if (bullet) ReceiveDamage();
-    }*/
+        PlayerDie = false;
+        gameOverPanel.SetActive(false);
+        var start = GameObject.Find("Start");
+        start.GetComponent<Button>().interactable = true;
+        transform.position = respawn.transform.position;       
+    }
+    public void NextBut()
+    {
+        if(SceneManager.GetActiveScene().name == LevelManager.countUnlockedLevel.ToString())
+            LevelManager.countUnlockedLevel++;
+        SceneManager.LoadScene("levels");
+    }
     private void OnTriggerEnter2D(Collider2D collider)
     {
 

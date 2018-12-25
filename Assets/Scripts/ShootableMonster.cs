@@ -9,13 +9,11 @@ public class ShootableMonster : Monster
     private float rate = 2.0F;
     [SerializeField]
     private Color bulletColor = Color.white;
-    private Point point;
     private Bullet bullet;
 
     protected override void Awake()
     {
         bullet = Resources.Load<Bullet>("SlimeBullet");
-        point = Resources.Load<Point>("Point");
     }
 
     protected override void Start()
@@ -42,11 +40,6 @@ public class ShootableMonster : Monster
             Destroy(gameObject, .1f);
             Vector3 position = transform.position;
             position.y += 0.5F;
-            Point newPoint = Instantiate(point, position, point.transform.rotation) as Point;
-            position.x += 1.0F;
-            Point newPoint1 = Instantiate(point, position, point.transform.rotation) as Point;
-            position.x -= 3.0F;
-            Point newPoint2 = Instantiate(point, position, point.transform.rotation) as Point;
         }
     }
     protected override void OnTriggerEnter2D(Collider2D collider)

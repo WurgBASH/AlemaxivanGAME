@@ -16,7 +16,6 @@ public class DragAndDrop : MonoBehaviour
     bool drag = false;
     int activeDrag;
     bool addingBut = false;
-    int  start = 0;
     Dictionary<string, int> funcAndArg = new Dictionary<string, int>();
 
     public void CreateBut()
@@ -49,10 +48,11 @@ public class DragAndDrop : MonoBehaviour
         {
             if (but[activeDrag].position.y+15 > Input.mousePosition.y)
             {
-                if (Input.mousePosition.y <= (but[activeDrag + 1].position.y + 15) && Input.mousePosition.y >= (but[activeDrag + 1].position.y - 15))
+                if (activeDrag < (butCol-1))
                 {
-                    if (activeDrag < butCol)
+                    if (Input.mousePosition.y <= (but[activeDrag + 1].position.y + 15) && Input.mousePosition.y >= (but[activeDrag + 1].position.y - 15))
                     {
+                    
                         var temp = but[activeDrag].position;
                         but[activeDrag].position = but[activeDrag + 1].position;
                         but[activeDrag].SetSiblingIndex(activeDrag + 1);
@@ -60,13 +60,8 @@ public class DragAndDrop : MonoBehaviour
                         but[activeDrag+1].SetSiblingIndex(activeDrag);
                         CreateBut();
                         drag = false;
-                    }
-                    else
-                    {
-                        drag = false;
-                    }
+                    }                    
                 }
-
             }
             else
             {
@@ -78,10 +73,6 @@ public class DragAndDrop : MonoBehaviour
                     but[activeDrag - 1].position = temp;
                     but[activeDrag-1].SetSiblingIndex(activeDrag);
                     CreateBut();
-                    drag = false;
-                }
-                else
-                {
                     drag = false;
                 }
             }
@@ -101,24 +92,22 @@ public class DragAndDrop : MonoBehaviour
         }
 
     }
-     void Update()
+    public void GetFuncs(Button start)
     {
-        
-    }
-    public void GetFuncs()
-    {
-        start++;
-        if (start==1)
+        if(funcAndArg.Count == butCol)
         {
+            start.interactable = false;
             character.CreateFuncArray(but.Length);
             for (int i = 0; i < but.Length; i++)
             {
                 MethodInfo m = character.GetType().GetMethod(but[i].name[0] + "But");
                 object[] parametersArray = new object[] { funcAndArg[but[i].name] };
-                m.Invoke(character, parametersArray);                
+                m.Invoke(character, parametersArray);
+
             }
+            StartCoroutine(character.Starting());
         }
-        StartCoroutine(character.Starting());
+        
     }
     public void GetArg(InputField inp)
     {
@@ -138,7 +127,7 @@ public class DragAndDrop : MonoBehaviour
     }
     public void AddBut(int butName)
     {
-        if (butCol < 5)
+        if (butCol < 7)
         {
             GameObject button;
             switch (butName)
