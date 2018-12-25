@@ -51,10 +51,11 @@ public class MoveableMonster : Monster
 
     private void Move()
     {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position + transform.up * 0.5F + transform.right * direction.x * 0.5F, 3F);
+        //Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position + transform.up * 0.5F + transform.right * direction.x * 0.5F, 3F);
 
-        if (colliders.Length > 0 && colliders.All(x => !x.GetComponent<Player>())) direction *= -1.0F;
-        
+        //if (colliders.Length > 0 && colliders.All(x => !x.GetComponent<Player>())) direction *= -1.0F;
+        Vector3 tmp = transform.position + direction;
         transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
+        if (tmp.x > 2.0F || tmp.x < -2.0F) direction *= -1.0F;
     }
 }
