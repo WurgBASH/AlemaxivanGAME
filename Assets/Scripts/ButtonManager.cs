@@ -9,4 +9,8 @@ public class ButtonManager : MonoBehaviour {
     {
         SceneManager.LoadScene(numLvl.ToString());
     }
+    public void BackToMain()
+    {
+        SceneManager.LoadScene("main menu");
+    }
 }

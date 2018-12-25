@@ -22,6 +22,8 @@ public class Settings : MonoBehaviour {
         }
         dropdown.ClearOptions();
         dropdown.AddOptions(resolutions);
+       
+        
     }
     public void FullScreenToggle()
     {

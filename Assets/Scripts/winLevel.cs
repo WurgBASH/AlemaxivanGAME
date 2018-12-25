@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 public class winLevel : MonoBehaviour
 {
     private Player character;
@@ -15,5 +15,9 @@ public class winLevel : MonoBehaviour
            Debug.Log("sa");
            character.Win();
         }
+    }
+    public void BackToLevels()
+    {
+        SceneManager.LoadScene("levels");
     }
 }

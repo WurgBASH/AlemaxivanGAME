@@ -17,6 +17,19 @@ public class Player : Unit {
         }
     }
     private LivesBar livesBar;
+    
+    private int stars = 3;
+    public int Stars
+    {
+        get { return stars; }
+        set
+        {
+            if (value < 3) stars = value;
+            starBar.Refresh();
+        }
+    }
+    private StarBar starBar;
+
     [SerializeField]
 	private float speed = 3.0F;
 	[SerializeField]
@@ -41,7 +54,7 @@ public class Player : Unit {
     public GameObject gameOverPanel;
     public Text gameOverText;
     bool PlayerDie;
-    bool PlayerWin;
+    public bool PlayerWin;
 
     private int FuncState =0;
     private int FucnArg =-1;
@@ -52,12 +65,11 @@ public class Player : Unit {
     private void Awake()
 	{
         gameOverPanel.SetActive(false);
-        livesBar = FindObjectOfType<LivesBar>();
+        livesBar = FindObjectOfType<LivesBar>();        
         rigidbody = GetComponent<Rigidbody2D>();
 		animator = GetComponent<Animator>();
 		sprite =GetComponentInChildren<SpriteRenderer>();
-        bullet = Resources.Load<Bullet>("Bullet");
-
+        bullet = Resources.Load<Bullet>("Bullet");       
     }
 
 	private void FixedUpdate()
@@ -179,14 +191,21 @@ public class Player : Unit {
                 break;
             }
         }
+        if (!PlayerWin)
+        {
+            Lose();
+        }
     }
 
     public void Lose()
     {
         if (!PlayerWin)
-        {
+        {           
             PlayerDie = true;
             gameOverPanel.SetActive(true);
+            starBar = FindObjectOfType<StarBar>();
+            Stars = 0;
+            starBar.Refresh();
             gameOverText.text = "YOU LOSE!";
             gameOverPanel.GetComponentInChildren<Button>();
             var next = GameObject.Find("NextBut");
@@ -198,9 +217,29 @@ public class Player : Unit {
     }
     public void Win()
     {
+        sprite.enabled = !sprite.enabled;
+        if (SceneManager.GetActiveScene().name == LevelManager.countUnlockedLevel.ToString())
+            LevelManager.countUnlockedLevel++;
         PlayerWin = true;
         gameOverPanel.SetActive(true);
+        starBar = FindObjectOfType<StarBar>();
         gameOverText.text = "YOU WIN!";
+        switch (FunctionsStates.Length)
+        {
+            case 3:
+                Stars = 3;
+                break;
+            case 4:
+            case 5:
+                Stars = 2;
+                break;
+            case 6:
+            case 7:
+            case 8:
+                Stars = 1;
+                break;
+        }
+        starBar.Refresh();
         var next = GameObject.Find("NextBut");
         next.GetComponent<Button>().interactable = true;
         Lives = 5;
@@ -214,16 +253,10 @@ public class Player : Unit {
 	}
     public void AgainBut()
     {
-        PlayerDie = false;
-        gameOverPanel.SetActive(false);
-        var start = GameObject.Find("Start");
-        start.GetComponent<Button>().interactable = true;
-        transform.position = respawn.transform.position;       
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);    
     }
     public void NextBut()
-    {
-        if(SceneManager.GetActiveScene().name == LevelManager.countUnlockedLevel.ToString())
-            LevelManager.countUnlockedLevel++;
+    {       
         SceneManager.LoadScene("levels");
     }
     private void OnTriggerEnter2D(Collider2D collider)
