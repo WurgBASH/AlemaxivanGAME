@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class Settings : MonoBehaviour {
@@ -22,7 +20,14 @@ public class Settings : MonoBehaviour {
         }
         dropdown.ClearOptions();
         dropdown.AddOptions(resolutions);
-       
+        for(int i =0;i< rsl.Length;i++)
+        {
+            if(rsl[i].width == Screen.width && rsl[i].height == Screen.height)
+            {
+                dropdown.value =i;
+            }
+        }
+        
         
     }
     public void FullScreenToggle()

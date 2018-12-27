@@ -9,7 +9,7 @@ public class MoveableMonster : Monster
     [SerializeField]
     private float speed = 2.0F;
     private Vector3 direction;
-    
+
 
     private SpriteRenderer sprite;
 
@@ -56,6 +56,11 @@ public class MoveableMonster : Monster
         //if (colliders.Length > 0 && colliders.All(x => !x.GetComponent<Player>())) direction *= -1.0F;
         Vector3 tmp = transform.position + direction;
         transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
-        if (tmp.x > 2.0F || tmp.x < -2.0F) direction *= -1.0F;
+        if (tmp.x > 2.0F || tmp.x < -2.0F)
+        {
+            direction *= -1.0F;
+            sprite.flipX = !sprite.flipX;
+
+        }
     }
 }
