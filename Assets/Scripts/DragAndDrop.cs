@@ -149,10 +149,14 @@ public class DragAndDrop : MonoBehaviour
     }
     public void GetArg(InputField inp)
     {
-        if(!funcAndArg.ContainsKey(inp.name))
+        if(inp.text != "")
+        {
+            if(!funcAndArg.ContainsKey(inp.name))
             funcAndArg.Add(inp.name, int.Parse(inp.text));
         else
             funcAndArg[inp.name] = int.Parse(inp.text);
+        }
+       
     }
     public void AddRun()
     {
@@ -174,19 +178,20 @@ public class DragAndDrop : MonoBehaviour
             switch (butName)
             {
                 case 1:
-                    button = (GameObject)Instantiate(RunButtonPrefab);                    
+                    button = Instantiate(RunButtonPrefab);                  
                     break;
                 case 2:
-                    button = (GameObject)Instantiate(JumpButtonPrefab);
+                    button = Instantiate(JumpButtonPrefab);
                     break;
                 case 3:
-                    button = (GameObject)Instantiate(ShootButtonPrefab);
+                    button = Instantiate(ShootButtonPrefab);                   
                     break;
                 default:
-                    button = (GameObject)Instantiate(RunButtonPrefab);
+                    button = null;
+                    Debug.Log("But didn't add");
                     break;
-
             }
+            button.GetComponent<InputField>().text="";
             button.name += butCol;
             button.GetComponent<DeleteFuncBut>().canDelete = true;
             button.transform.position = transform.position;

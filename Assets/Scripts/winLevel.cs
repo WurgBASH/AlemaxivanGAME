@@ -12,7 +12,6 @@ public class winLevel : MonoBehaviour
     {
         if (other.tag == "Player")
         {
-           Debug.Log("sa");
            character.Win();
         }
     }

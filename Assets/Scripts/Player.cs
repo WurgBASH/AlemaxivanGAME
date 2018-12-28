@@ -37,7 +37,6 @@ public class Player : Unit {
     public GameObject respawn;
 
     private bool isGrounded =false;
-    private bool readyShoot = true;
 
 
     private Bullet bullet;
@@ -61,6 +60,7 @@ public class Player : Unit {
     private int FucnArg1 = 0;
     int[] FunctionsArgs;
     int[] FunctionsStates;
+    public int numberOfWinBut=3;
     int Stateindex = 0;
     private void Awake()
 	{
@@ -96,8 +96,7 @@ public class Player : Unit {
 
 	private void Update()
 	{
-        if (isGrounded && readyShoot) State = CharState.Idle;
-        if (!readyShoot) State = CharState.FireStay;
+        if (isGrounded) State = CharState.Idle;
         if (FuncState == 1)
         {
             RunBB();
@@ -135,20 +134,15 @@ public class Player : Unit {
 	{
 		rigidbody.AddForce(transform.up*jumpForce, ForceMode2D.Impulse);
 	}
-
     IEnumerator Shoot()
 	{
         
-        readyShoot = false;
         Vector3 position = transform.position; position.y+=0.8F; 
-		if(sprite.flipX)  position.x -=1.8F; else position.x +=1.8F;
-        
+		if(sprite.flipX)  position.x -=1.8F; else position.x +=1.8F;       
         Bullet newBullet = Instantiate(bullet,position,bullet.transform.rotation) as Bullet;
         State = CharState.FireStay;
         newBullet.Direction = newBullet.transform.right *(sprite.flipX ? -1.0F:1.0F);
         yield return new WaitForSeconds(1);
-        readyShoot = true;
-
     }
     public override void ReceiveDamage()
     {
@@ -182,7 +176,12 @@ public class Player : Unit {
                 case 3:
                     State = CharState.Fire;
                     StartCoroutine(Shoot());
-                    yield return new WaitForSeconds(2);
+                    for (int count = 0; count < FunctionsArgs[i]; count++)
+                    {
+                        State = CharState.FireStay;
+                        StartCoroutine(Shoot());
+                        yield return new WaitForSeconds(1);
+                    }
                     break;
 
             }
@@ -224,20 +223,59 @@ public class Player : Unit {
         gameOverPanel.SetActive(true);
         starBar = FindObjectOfType<StarBar>();
         gameOverText.text = "YOU WIN!";
-        switch (FunctionsStates.Length)
+        if (numberOfWinBut == 3)
         {
-            case 3:
-                Stars = 3;
-                break;
-            case 4:
-            case 5:
-                Stars = 2;
-                break;
-            case 6:
-            case 7:
-            case 8:
-                Stars = 1;
-                break;
+            switch (FunctionsStates.Length)
+            {
+                case 3:
+                    Stars = 3;
+                    break;
+                case 4:
+                case 5:
+                    Stars = 2;
+                    break;
+                case 6:
+                case 7:
+                case 8:
+                    Stars = 1;
+                    break;
+            }
+        }
+        else if(numberOfWinBut==4)
+        {
+            switch (FunctionsStates.Length)
+            {
+                case 3:
+                case 4:
+                    Stars = 3;
+                    break;
+                case 5:
+                case 6:
+                    Stars = 2;
+                    break;
+                case 7:
+                case 8:
+                    Stars = 1;
+                    break;
+            }
+        }
+        else if(numberOfWinBut==5)
+        {
+            switch (FunctionsStates.Length)
+            {
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    Stars = 3;
+                    break;              
+                case 7:
+                    Stars = 2;
+                    break;
+                case 8:
+                    Stars = 1;
+                    break;
+            }
         }
         starBar.Refresh();
         var next = GameObject.Find("NextBut");
@@ -267,6 +305,7 @@ public class Player : Unit {
         {
             ReceiveDamage();
         }
+
     }
 
 }

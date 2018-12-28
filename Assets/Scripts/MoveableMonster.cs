@@ -9,7 +9,7 @@ public class MoveableMonster : Monster
     [SerializeField]
     private float speed = 2.0F;
     private Vector3 direction;
-
+    int count = 0;
 
     private SpriteRenderer sprite;
 
@@ -22,10 +22,20 @@ public class MoveableMonster : Monster
     {
         direction = transform.right;
     }
-
+    private void FixedUpdate()
+    {
+        count++;
+       
+    }
     protected override void Update()
     {
         Move();
+        if (count>55)
+        {
+            count = 0;
+            direction *= -1.0F;
+            sprite.flipX = !sprite.flipX;
+        }
     }
     public override void ReceiveDamage()
     {
@@ -41,26 +51,20 @@ public class MoveableMonster : Monster
     }
     protected override void OnTriggerEnter2D(Collider2D collider)
     {
+        Bullet bullet = collider.gameObject.GetComponent<Bullet>();
+        if (bullet && bullet.Parent != gameObject)
+        {
+            ReceiveDamage();
+        }
         Unit unit = collider.GetComponent<Unit>();
         if (unit && unit is Player)
         {
-            if (Mathf.Abs(unit.transform.position.x - transform.position.x) < 1.5F) ReceiveDamage();
-            else unit.ReceiveDamage();
+            unit.ReceiveDamage();
         }
     }
 
     private void Move()
     {
-        //Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position + transform.up * 0.5F + transform.right * direction.x * 0.5F, 3F);
-
-        //if (colliders.Length > 0 && colliders.All(x => !x.GetComponent<Player>())) direction *= -1.0F;
-        Vector3 tmp = transform.position + direction;
         transform.position = Vector3.MoveTowards(transform.position, transform.position + direction, speed * Time.deltaTime);
-        if (tmp.x > 2.0F || tmp.x < -2.0F)
-        {
-            direction *= -1.0F;
-            sprite.flipX = !sprite.flipX;
-
-        }
     }
 }

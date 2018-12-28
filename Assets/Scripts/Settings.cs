@@ -27,8 +27,8 @@ public class Settings : MonoBehaviour {
                 dropdown.value =i;
             }
         }
-        
-        
+        var qua = GameObject.Find("Quality");
+        qua.GetComponent<Dropdown>().value = QualitySettings.GetQualityLevel();
     }
     public void FullScreenToggle()
     {
